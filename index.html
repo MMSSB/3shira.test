@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Links | Premium</title>
+    
+    <!-- ==========================================
+         LIBRARIES
+         ========================================== -->
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* =======================================================================
+           1. CUSTOMIZATION & THEMING
+           ======================================================================= */
+        :root {
+            /* Layout */
+            --max-width: 680px;
+            --btn-border-radius: 40px; 
+            --avatar-radius: 50%; 
+            
+            /* Light Theme (Default) */
+            --bg-color: #f4f5f7;
+            --text-color: #111827;
+            --text-secondary: #6b7280;
+            --btn-bg: #ffffff;
+            --btn-text: #111827;
+            --btn-border: 1px solid #e5e7eb;
+            --btn-hover-bg: #ffffff;
+            --btn-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --btn-hover-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1);
+            --btn-hover-transform: translateY(-4px) scale(1.01);
+            
+            /* Glassmorphism Menu & Overlays */
+            --menu-bg: rgb(255, 255, 255);
+            --menu-border: rgba(229, 231, 235, 0.8);
+            --menu-hover: rgba(0, 0, 0, 0.05);
+            --menu-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --modal-overlay: rgba(0, 0, 0, 0.4);
+            
+            /* Accent Colors */
+            --accent-color: #3b82f6; /* Blue checkmark/accents */
+            --toast-bg: #111827;
+            --toast-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            /* iOS Dark Theme */
+            --bg-color: #000000;
+            --text-color: #f8fafc;
+            --text-secondary: #94a3b8;
+            --btn-bg: #1c1c1e;
+            --btn-text: #f8fafc;
+            --btn-border: 1px solid #4b4b4b;
+            --btn-hover-bg: #3b82f6; /* Mint green accent on hover */
+            --btn-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            --btn-hover-shadow: 0 10px 25px -3px rgba(0,0,0, 0.4);
+            
+            --menu-bg: rgb(56, 56, 56);
+            --menu-border: rgba(79, 80, 80, 0.8);
+            --menu-hover: rgba(255, 255, 255, 0.1);
+            --menu-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+            --modal-overlay: rgba(0, 0, 0, 0.7);
+            
+            --accent-color: #3b82f6; 
+            /* --accent-color: #27a8f2;  */
+            --toast-bg: #ffffff;
+            --toast-text: #0f172a;
+        }
+
+        /* Override link text/icon colors when hovering on dark mode mint background */
+        [data-theme="dark"] .link-card:hover .link-text,
+        [data-theme="dark"] .link-card:hover .link-icon,
+        [data-theme="dark"] .link-card:hover .qr-btn {
+            color: #0f172a; 
+        }
+
+        /* =======================================================================
+           2. BASE STYLES & ANIMATIONS
+           ======================================================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              /* Prevent text selection highlighting */
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE 10+ and Edge */
+  user-select: none;         /* Standard syntax (Chrome, Edge, Opera) */
+
+  /* Prevent the default long-press context menu/callout on iOS mobile */
+  -webkit-touch-callout: none; 
+  
+  /* Prevent the translucent tap highlight overlay on mobile devices */
+  -webkit-tap-highlight-color: transparent; 
+    -webkit-touch-callout: none; 
+  
+  /* Prevents text selection across all major modern mobile and desktop browsers */
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Legacy Edge / IE */
+  user-select: none;         /* Standard syntax (Chrome, Opera, Edge) */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.4s ease, color 0.4s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem 5rem; /* Extra padding for bottom toast */
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-item {
+            opacity: 0;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* =======================================================================
+           3. TOP CONTROLS (Share & Theme)
+           ======================================================================= */
+        .top-controls {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+        }
+
+        .control-btn {
+            background: var(--btn-bg);
+            color: var(--text-color);
+            border: var(--btn-border);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.25rem;
+            box-shadow: var(--btn-shadow);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            background: var(--menu-hover);
+        }
+
+        /* Glassmorphic Dropdown Menu */
+        .theme-menu {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: var(--menu-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--menu-border);
+            border-radius: 16px;
+            box-shadow: var(--menu-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.95);
+            transform-origin: top right;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 8px;
+        }
+
+        .theme-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .theme-menu button {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 10px;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .theme-menu button:hover {
+            background: var(--menu-hover);
+        }
+
+        /* Active Menu Item Checkmark */
+        .theme-menu button .check-icon {
+            margin-left: auto;
+            color: var(--accent-color);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s ease;
+        }
+
+        .theme-menu button.active-theme {
+            background: var(--menu-hover);
+            color: var(--accent-color);
+        }
+
+        .theme-menu button.active-theme .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* =======================================================================
+           4. PROFILE & SEARCH SECTION
+           ======================================================================= */
+        .profile {
+            text-align: center;
+            margin-bottom: 2rem;
+            margin-top: 3.5rem;
+        }
+
+        .profile img {
+            width: 104px;
+            height: 104px;
+            border-radius: var(--avatar-radius);
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 3px solid var(--btn-bg);
+            box-shadow: var(--menu-shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .profile img:hover { transform: scale(1.05); }
+
+        .name-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .name-wrapper h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .verified-badge {
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        .profile p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        /* Search Bar */
+        .search-container {
+            width: 100%;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px 14px 45px;
+            border-radius: 99px;
+            border: var(--btn-border);
+            background: var(--btn-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            box-shadow: var(--btn-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            box-shadow: var(--btn-hover-shadow);
+            border-color: var(--accent-color);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* =======================================================================
+           5. LINKS SECTION
+           ======================================================================= */
+        .links {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .link-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            text-decoration: none;
+            padding: 1.1rem;
+            border-radius: var(--btn-border-radius);
+            border: var(--btn-border);
+            box-shadow: var(--btn-shadow);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .link-card:hover {
+            background-color: var(--btn-hover-bg);
+            transform: var(--btn-hover-transform);
+            box-shadow: var(--btn-hover-shadow);
+        }
+
+        .link-card.hidden {
+            display: none !important;
+        }
+
+        .link-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: color 0.3s ease;
+        }
+
+        .link-text {
+            flex-grow: 1;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-right: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .qr-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .qr-btn:hover {
+            color: var(--text-color);
+            background: rgba(128, 128, 128, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* =======================================================================
+           6. SOCIALS & FOOTER
+           ======================================================================= */
+        .socials {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .social-link {
+            color: var(--text-color);
+            font-size: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--btn-bg);
+            border: var(--btn-border);
+            box-shadow: var(--btn-shadow);
+        }
+
+        .social-link:hover {
+            transform: translateY(-5px) scale(1.1);
+            background: var(--btn-hover-bg);
+            color: var(--accent-color);
+        }
+
+        footer {
+            margin-top: 3rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* =======================================================================
+           7. MODALS & TOASTS
+           ======================================================================= */
+        /* QR Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--modal-overlay);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--menu-bg);
+            backdrop-filter: blur(12px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: var(--menu-shadow);
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90%;
+            border: var(--btn-border);
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-content { transform: scale(1); }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--bg-color);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .close-modal:hover {
+            background: #ef4444;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        #qrTitle {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        #qrcode {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--toast-bg);
+            color: var(--toast-text);
+            padding: 12px 24px;
+            border-radius: 99px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        .profile-img{
+                user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- Top Controls (Share & Theme) -->
+        <div class="top-controls animate-item" style="animation-delay: 0s;">
+            <button class="control-btn" onclick="shareProfile()" aria-label="Share Profile">
+                <i class="ri-share-forward-line"></i>
+            </button>
+            
+            <div style="position: relative;">
+                <button class="control-btn" id="themeToggleBtn" aria-label="Toggle Theme">
+                    <i class="fa-solid fa-palette"></i>
+                </button>
+                <div class="theme-menu" id="themeMenu">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Info -->
+        <header class="profile animate-item" style="animation-delay: 0.1s;">
+            <img src="images/logo.png" class="profile-img" alt="">
+            <!-- <img src="https://ui-avatars.com/api/?name=John+Doe&background=random&size=200" alt="Profile Picture"> -->
+            <div class="name-wrapper">
+                <h1>عشيرة ⛺Must 2026⚜️</h1>
+                <i class="fa-solid fa-circle-check verified-badge" title="Verified"></i>
+            </div>
+            <p>إحنا مش مجرد نشاط طلابي، إحنا عيلة بتجمعها روح المغامرة والتعاون! عشيرة جوالة MUST هي المكان اللي بنبني فيه شخصيات قيادية قادرة تعتمد على نفسها وتأثر في المجتمع من خلال مبادئ الحركة الكشفية.</p>
+        </header>
+
+        <!-- Search Bar -->
+        <!-- <div class="search-container animate-item" style="animation-delay: 0.2s;">
+            <i class="ri-search-line"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search links..." onkeyup="filterLinks()">
+        </div> -->
+
+        <!-- Links List -->
+        <div class="links" id="linksContainer">
+            
+            <a href="#" class="link-card animate-item" style="animation-delay: 0.3s;" target="_blank" rel="noopener">
+                <i class="ph ph-globe link-icon"></i>
+                <span class="link-text">Website</span>
+                <button class="qr-btn" onclick="openQR(event, '#', 'My Website')" aria-label="Show QR Code">
+                    <i class="ri-qr-code-line"></i>
+                </button>
+            </a>
+
+            <a href="https://whatsapp.com" class="link-card animate-item" style="animation-delay: 0.4s;" target="_blank" rel="noopener">
+                <!-- <i class="ri-whatsapp-line link-icon"></i> -->
+            <!-- <i class="fa-brands fa-whatsapp link-icon" ></i> -->
+            <i class="fa-brands fa-whatsapp link-icon" style="color: #25d366;"></i>
+                <span class="link-text">WhatsApp Group</span>
+                <button class="qr-btn" onclick="openQR(event, 'https://whatsapp.com', 'WhatsApp Group')" aria-label="Show QR Code">
+                    <i class="ri-qr-code-line"></i>
+                </button>
+            </a>
+            <a href="https://facebook.com" class="link-card animate-item" style="animation-delay: 0.4s;" target="_blank" rel="noopener">
+                <!-- <i class="ri-facebook-line link-icon"></i> -->
+            <!-- <i class="fa-brands fa-facebook link-icon" ></i> -->
+            <i class="fa-brands fa-facebook link-icon" style="color: #1877f2;"></i>
+                <span class="link-text">Facebook Page</span>
+                <button class="qr-btn" onclick="openQR(event, 'https://facebook.com', 'Facebook Page')" aria-label="Show QR Code">
+                    <i class="ri-qr-code-line"></i>
+                </button>
+            </a>
+            <a href="https://instagram.com" class="link-card animate-item" style="animation-delay: 0.4s;" target="_blank" rel="noopener">
+                <!-- <i class="ri-instagram-line link-icon"></i> -->
+            <!-- <i class="fa-brands fa-instagram link-icon" ></i> -->
+            <i class="fa-brands fa-instagram link-icon" style="color: #e1306c;"></i>
+                <span class="link-text">Instagram Page</span>
+                <button class="qr-btn" onclick="openQR(event, 'https://instagram.com', 'Instagram Profile')" aria-label="Show QR Code">
+                    <i class="ri-qr-code-line"></i>
+                </button>
+            </a>
+
+            <!-- <a href="https://github.com" class="link-card animate-item" style="animation-delay: 0.5s;" target="_blank" rel="noopener">
+                <i class="fa-brands fa-github link-icon"></i>
+                <span class="link-text">GitHub Profile</span>
+                <button class="qr-btn" onclick="openQR(event, 'https://github.com', 'GitHub Profile')" aria-label="Show QR Code">
+                    <i class="ri-qr-code-line"></i>
+                </button>
+            </a> -->
+
+            <!-- <a href="mailto:email@example.com" class="link-card animate-item" style="animation-delay: 0.6s;" target="_blank" rel="noopener">
+                <i class="ri-mail-send-line link-icon"></i>
+                <span class="link-text">Send an Email</span>
+                <button class="qr-btn" onclick="openQR(event, 'mailto:email@example.com', 'Send an Email')" aria-label="Show QR Code">
+                    <i class="ri-qr-code-line"></i>
+                </button>
+            </a> -->
+
+        </div>
+
+        <!-- Social Row -->
+        <!-- <div class="socials animate-item" style="animation-delay: 0.7s;">
+            <a href="#" class="social-link" aria-label="Twitter"><i class="ri-twitter-x-line"></i></a>
+            <a href="#" class="social-link" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="social-link" aria-label="LinkedIn"><i class="ri-linkedin-fill"></i></a>
+            <a href="#" class="social-link" aria-label="TikTok"><i class="ph ph-tiktok-logo"></i></a>
+        </div> -->
+
+        <!-- Footer -->
+        <footer class="animate-item" style="animation-delay: 0.8s;">
+            Built with <i class="fa-solid fa-heart" style="color: #ef4444;"></i> by <a href="https://mmssb.github.io" target="_blank" style="color:var(--accent-color); text-decoration: underline;">MMS</a>
+        </footer>
+    </main>
+
+    <!-- QR Code Modal -->
+    <div class="modal-overlay" id="qrModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 id="qrTitle">Link QR Code</h2>
+            <div id="qrcode"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastMsg">
+        <i class="fa-solid fa-circle-check" style="color: #2dd4bf;"></i>
+        <span id="toastText">Action successful</span>
+    </div>
+
+    <script>
+        /* =======================================================================
+           JAVASCRIPT LOGIC
+           ======================================================================= */
+        
+        // --- 1. THEME LOGIC (With Active State Indicators) ---
+        const themeConfig = {
+            allowLight: true,
+            allowDark: true,
+            allowSystem: true,
+            defaultTheme: 'system'
+        };
+
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const themeMenu = document.getElementById('themeMenu');
+        
+        function buildThemeMenu(currentTheme) {
+            let html = '';
+            
+            if (themeConfig.allowLight) {
+                const isActive = currentTheme === 'light' ? 'active-theme' : '';
+                html += `<button class="${isActive}" onclick="setTheme('light')">
+                            <i class="ri-sun-line"></i> Light 
+                            <i class="fa-solid fa-check check-icon"></i>
+                         </button>`;
+            }
+            if (themeConfig.allowDark) {
+                const isActive = currentTheme === 'dark' ? 'active-theme' : '';
+                html += `<button class="${isActive}" onclick="setTheme('dark')">
+                            <i class="ri-moon-line"></i> Dark 
+                            <i class="fa-solid fa-check check-icon"></i>
+                         </button>`;
+            }
+            if (themeConfig.allowSystem) {
+                const isActive = currentTheme === 'system' ? 'active-theme' : '';
+                html += `<button class="${isActive}" onclick="setTheme('system')">
+                            <i class="ri-computer-line"></i> System 
+                            <i class="fa-solid fa-check check-icon"></i>
+                         </button>`;
+            }
+            themeMenu.innerHTML = html;
+            if(html === '') themeBtn.style.display = 'none';
+        }
+
+        themeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            themeMenu.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!themeMenu.contains(e.target) && e.target !== themeBtn) {
+                themeMenu.classList.remove('active');
+            }
+        });
+
+        function setTheme(theme) {
+            themeMenu.classList.remove('active');
+            localStorage.setItem('user-theme-pref', theme);
+            applyTheme(theme);
+            buildThemeMenu(theme); // Re-render menu to update checkmark
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'system') {
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', systemPrefersDark ? 'dark' : 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            const currentPref = localStorage.getItem('user-theme-pref') || themeConfig.defaultTheme;
+            if (currentPref === 'system') {
+                document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            }
+        });
+
+
+        // --- 2. SEARCH / FILTER LOGIC ---
+        function filterLinks() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const links = document.querySelectorAll('.link-card');
+
+            links.forEach(link => {
+                const text = link.querySelector('.link-text').innerText.toLowerCase();
+                if (text.includes(input)) {
+                    link.classList.remove('hidden');
+                } else {
+                    link.classList.add('hidden');
+                }
+            });
+        }
+
+
+        // --- 3. SHARE PROFILE & TOAST LOGIC ---
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toastMsg');
+            document.getElementById('toastText').innerText = message;
+            
+            toast.classList.add('show');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        async function shareProfile() {
+            const url = window.location.href;
+            const title = document.title;
+
+            // If the device supports native sharing (Mobile usually)
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: title,
+                        text: 'Check out my links!',
+                        url: url
+                    });
+                } catch (err) {
+                    console.log('Share dismissed');
+                }
+            } else {
+                // Fallback for desktop: Copy to clipboard
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('Link copied to clipboard!');
+                });
+            }
+        }
+
+
+        // --- 4. QR CODE MODAL LOGIC ---
+        const qrModal = document.getElementById('qrModal');
+        const qrContainer = document.getElementById('qrcode');
+        const qrTitle = document.getElementById('qrTitle');
+
+        function openQR(e, url, title) {
+            e.preventDefault(); 
+            e.stopPropagation();
+
+            qrTitle.innerText = title;
+            qrContainer.innerHTML = '';
+            
+            new QRCode(qrContainer, {
+                text: url,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            qrModal.classList.add('active');
+        }
+
+        function closeModal() {
+            qrModal.classList.remove('active');
+        }
+
+        qrModal.addEventListener('click', (e) => {
+            if (e.target === qrModal) closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && qrModal.classList.contains('active')) closeModal();
+        });
+
+
+        // --- 5. INITIALIZATION ---
+        function init() {
+            const savedTheme = localStorage.getItem('user-theme-pref') || themeConfig.defaultTheme;
+            buildThemeMenu(savedTheme);
+            applyTheme(savedTheme);
+        }
+
+        init();
+    </script>
+</body>
+</html>
